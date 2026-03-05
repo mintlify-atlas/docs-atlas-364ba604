@@ -1,0 +1,404 @@
+---
+title: 'GUI Interface'
+description: 'Windows 98-style desktop interface with draggable windows and file management'
+icon: 'window-maximize'
+---
+
+## Overview
+
+The GUI interface provides a nostalgic Windows 98-style desktop experience as an alternative to the CLI. Users can interact with desktop icons, open multiple windows, drag and resize them, and view file contents in a familiar GUI environment.
+
+## Desktop Features
+
+### Desktop Icons
+
+The desktop displays a grid of icons representing available files:
+
+- **Terminal** - Returns to CLI interface
+- **armank.dev** - Bio and introduction
+- **experience.txt** - Work experience details
+- **socials.txt** - Social media links
+- **cat.png** - Random cat image (Easter egg!)
+
+**Implementation:** (mini-desktop.tsx:54-65)
+```tsx
+const files: {
+  [key: string]: string;
+} = {
+  Terminal: "under construction... 🚧",
+  "armank.dev":
+    "hi! my name is arman, i'm studying computer science and mathematics at the university of florida.\n\ni like full-stack web dev and typescript.\n\nfeel free to reach out to me!",
+  "experience.txt":
+    "apten (s24):\n - software engineer intern (may 2024 - july 2024)...",
+  "socials.txt":
+    "twitter: ksw_arman\ngithub: armans-code\nlinkedin: armankumaraswamy",
+  "cat.png": "🐈",
+};
+```
+
+### Icon Selection
+
+Click an icon once to select it (highlighted in blue), double-click to open:
+
+```tsx
+const handleFileClick = (fileName: string, e: React.MouseEvent) => {
+  const currentTime = new Date().getTime();
+  const timeSinceLastClick = currentTime - lastClickTime;
+
+  // Double-click detection (< 300ms)
+  if (timeSinceLastClick < 300 && selectedFile === fileName) {
+    if (fileName === "Terminal") {
+      router.push("/");
+      return;
+    }
+    // Open window for file
+    // ...
+  } else {
+    setSelectedFile(fileName);
+  }
+
+  setLastClickTime(currentTime);
+};
+```
+
+<Tip>
+Double-click the **Terminal** icon to return to the CLI interface at `/`
+</Tip>
+
+## Window System
+
+### Window Components
+
+Each window includes:
+
+1. **Title Bar** - Displays filename, window controls (minimize, close)
+2. **Menu Bar** - Non-functional menu items (File, Edit, Format, Help)
+3. **Content Area** - Text content or images
+4. **Resize Handle** - Bottom-right corner for resizing
+
+**Window Structure:** (mini-desktop.tsx:260-360)
+```tsx
+<div
+  className="absolute select-none bg-gray-200 rounded-none shadow-lg"
+  style={{
+    left: `${windowPositions[window.id]?.x}px`,
+    top: `${windowPositions[window.id]?.y}px`,
+    width: `${windowSizes[window.id]?.width}px`,
+    height: `${windowSizes[window.id]?.height}px`,
+    zIndex: activeWindow === window.id ? 10 : 1,
+    border: "2px solid #c0c0c0",
+    boxShadow: "inset -2px -2px #0a0a0a, inset 2px 2px #fff",
+  }}
+>
+  {/* Title Bar */}
+  <div className="window-title-bar" style={{ background: "#000080" }}>
+    <span>{window.fileName === "cat.png" ? "cat.png" : `Notepad - ${window.fileName}`}</span>
+    <div className="flex space-x-1">
+      <button onClick={() => toggleMinimize(window.id)}>_</button>
+      <button onClick={() => closeWindow(window.id)}>×</button>
+    </div>
+  </div>
+
+  {/* Menu Bar */}
+  <div className="bg-gray-200 text-xs">
+    <span>File</span>
+    <span>Edit</span>
+    <span>Format</span>
+    <span>Help</span>
+  </div>
+
+  {/* Content */}
+  <div className="bg-white h-[calc(100%-44px)] p-1">
+    {window.fileName === "cat.png" ? (
+      <img src={catImage} alt="Random cat" />
+    ) : (
+      <textarea value={files[window.fileName]} readOnly />
+    )}
+  </div>
+
+  {/* Resize Handle */}
+  <div
+    className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
+    onMouseDown={(e) => handleResizeStart(window.id, e)}
+  />
+</div>
+```
+
+### Window Operations
+
+<AccordionGroup>
+  <Accordion title="Drag Windows">
+    Click and hold the title bar to drag windows around the desktop.
+    
+    **Implementation:** (mini-desktop.tsx:111-122)
+    ```tsx
+    const handleWindowMouseDown = (windowId: string, e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest(".window-title-bar")) {
+        setIsDragging(windowId);
+        const windowRect = e.currentTarget.getBoundingClientRect();
+        setDragOffset({
+          x: e.clientX - windowRect.left,
+          y: e.clientY - windowRect.top,
+        });
+        setActiveWindow(windowId);
+        e.preventDefault();
+      }
+    };
+    ```
+    
+    **Boundary constraints:**
+    - Windows stay within desktop bounds
+    - Cannot drag beyond container edges
+    - Maintains proper offset during drag
+  </Accordion>
+
+  <Accordion title="Resize Windows">
+    Click and drag the resize handle in the bottom-right corner.
+    
+    **Implementation:** (mini-desktop.tsx:124-132)
+    ```tsx
+    const handleResizeStart = (windowId: string, e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsResizing(windowId);
+      setResizeStart({
+        x: e.clientX,
+        y: e.clientY,
+      });
+      setActiveWindow(windowId);
+    };
+    ```
+    
+    **Constraints:**
+    - Minimum width: 200px
+    - Minimum height: 150px
+    - Windows maintain aspect ratio during resize
+  </Accordion>
+
+  <Accordion title="Minimize Windows">
+    Click the minimize button (`_`) to hide the window. It remains in the taskbar.
+    
+    **Implementation:** (mini-desktop.tsx:185-193)
+    ```tsx
+    const toggleMinimize = (windowId: string) => {
+      setOpenWindows((prev) =>
+        prev.map((window) =>
+          window.id === windowId
+            ? { ...window, minimized: !window.minimized }
+            : window
+        )
+      );
+    };
+    ```
+    
+    Click the taskbar button to restore the window.
+  </Accordion>
+
+  <Accordion title="Close Windows">
+    Click the close button (`×`) to permanently close the window.
+    
+    **Implementation:** (mini-desktop.tsx:195-207)
+    ```tsx
+    const closeWindow = (windowId: string) => {
+      setOpenWindows((prev) => prev.filter((window) => window.id !== windowId));
+      setWindowPositions((prev) => {
+        const newPositions = { ...prev };
+        delete newPositions[windowId];
+        return newPositions;
+      });
+      setWindowSizes((prev) => {
+        const newSizes = { ...prev };
+        delete newSizes[windowId];
+        return newSizes;
+      });
+    };
+    ```
+  </Accordion>
+
+  <Accordion title="Focus Windows">
+    Click anywhere on a window to bring it to the front.
+    
+    - Active window has `z-index: 10`
+    - Inactive windows have `z-index: 1`
+    - Active window highlighted in taskbar
+  </Accordion>
+</AccordionGroup>
+
+## Taskbar
+
+The taskbar appears at the bottom of the desktop:
+
+**Features:**
+- Shows all open windows as buttons
+- Active window highlighted with different background
+- Click to restore minimized windows
+- "prefer a CLI?" link returns to terminal interface
+
+**Implementation:** (mini-desktop.tsx:364-403)
+```tsx
+<div
+  className="absolute bottom-0 left-0 right-0 h-8"
+  style={{
+    background: "#c0c0c0",
+    borderTop: "2px solid #dfdfdf",
+  }}
+>
+  <Link href="/" className="absolute right-0 mr-4 hover:underline">
+    prefer a CLI?
+  </Link>
+  {openWindows.map((window) => (
+    <button
+      key={window.id}
+      style={{
+        background: activeWindow === window.id ? "#bdbdbd" : "#c0c0c0",
+        border: "2px solid #808080",
+      }}
+      onClick={() => {
+        if (window.minimized) {
+          toggleMinimize(window.id);
+        }
+        setActiveWindow(window.id);
+      }}
+    >
+      <img src="...file-icon..." />
+      <span>{window.fileName}</span>
+    </button>
+  ))}
+</div>
+```
+
+## Cat Image Easter Egg
+
+The `cat.png` file displays a random cat image fetched from [cataas.com](https://cataas.com):
+
+```tsx
+useEffect(() => {
+  const getCat = async () => {
+    const image = await fetch(
+      `https://cataas.com/cat?width=300&height=300`
+    ).then((data) => data.blob());
+    const imageUrl = URL.createObjectURL(image);
+    setCatImage(imageUrl);
+  };
+  getCat();
+}, []);
+```
+
+<Note>
+The cat image is fetched when the GUI loads. The window shows: "tip: try reloading the page" to get a different cat image.
+</Note>
+
+## Window State Management
+
+```tsx
+type File = {
+  fileName: string;
+  minimized: boolean;
+  id: string;
+};
+
+type WindowPosition = {
+  [key: string]: {
+    x: number;
+    y: number;
+  };
+};
+
+type WindowSize = {
+  [key: string]: {
+    width: number;
+    height: number;
+  };
+};
+
+const [openWindows, setOpenWindows] = useState<File[]>([]);
+const [windowPositions, setWindowPositions] = useState<WindowPosition>({});
+const [windowSizes, setWindowSizes] = useState<WindowSize | null>(null);
+const [activeWindow, setActiveWindow] = useState<string | null>(null);
+```
+
+### Window Positioning
+
+New windows cascade diagonally:
+
+```tsx
+setWindowPositions((prev) => ({
+  ...prev,
+  [newWindow.id]: {
+    x: 20 + openWindows.length * 20,
+    y: 40 + openWindows.length * 20,
+  },
+}));
+
+setWindowSizes((prev) => ({
+  ...prev,
+  [newWindow.id]: { width: 350, height: 350 },
+}));
+```
+
+## Desktop Styling
+
+The GUI uses authentic Windows 98 styling:
+
+- **Desktop background:** Teal (`#6fb5b7`)
+- **Window chrome:** Gray (`#c0c0c0`) with 3D border effects
+- **Title bar:** Navy blue (`#000080`) with white text
+- **Taskbar:** Gray with raised border effect
+- **Icons:** Retro Windows 98 icons from [win98icons.alexmeub.com](https://win98icons.alexmeub.com)
+
+**3D Border Effect:**
+```css
+border: 2px solid #c0c0c0;
+border-top: 2px solid #dfdfdf;
+border-left: 2px solid #dfdfdf;
+box-shadow: inset -2px -2px #0a0a0a, inset 2px 2px #fff;
+```
+
+## Component Architecture
+
+```tsx
+const MiniDesktop = () => {
+  // State management
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [openWindows, setOpenWindows] = useState<File[]>([]);
+  const [isDragging, setIsDragging] = useState<string | null>(null);
+  const [isResizing, setIsResizing] = useState<string | null>(null);
+  const [activeWindow, setActiveWindow] = useState<string | null>(null);
+  
+  // Window operations
+  const handleFileClick = (fileName: string, e: React.MouseEvent) => { /* ... */ };
+  const handleWindowMouseDown = (windowId: string, e: React.MouseEvent) => { /* ... */ };
+  const handleResizeStart = (windowId: string, e: React.MouseEvent) => { /* ... */ };
+  const toggleMinimize = (windowId: string) => { /* ... */ };
+  const closeWindow = (windowId: string) => { /* ... */ };
+  
+  return (
+    <div
+      id="desktop-container"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+    >
+      {/* Desktop Icons */}
+      {/* Windows */}
+      {/* Taskbar */}
+    </div>
+  );
+};
+```
+
+<Info>
+The GUI is a client-side React component that uses hooks for state management and event handling.
+</Info>
+
+## User Experience Tips
+
+<Tip>
+**Multiple Windows:** You can open the same file multiple times to create multiple windows with independent positions and sizes.
+</Tip>
+
+<Tip>
+**Window Management:** Drag windows by their title bar (navy blue area) and resize using the bottom-right corner handle.
+</Tip>
+
+<Note>
+The menu bar items (File, Edit, Format, Help) are decorative and non-functional, maintaining the authentic Windows 98 aesthetic.
+</Note>

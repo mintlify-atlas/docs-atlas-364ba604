@@ -1,80 +1,362 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get Arman's Living Room running locally in minutes
 ---
 
-## Get started in three steps
+This guide will help you clone, install, and run the project on your local machine.
 
-Get your documentation site running locally and make your first customization.
+## Prerequisites
 
-### Step 1: Set up your local environment
+Before you begin, ensure you have the following installed:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+- **Node.js**: Version 18 or higher
+- **Package Manager**: npm, pnpm, or yarn
+- **Git**: For cloning the repository
 
-### Step 2: Deploy your changes
+## Installation
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+<Steps>
+  <Step title="Clone the repository">
+    Clone the project from GitHub:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    ```bash
+    git clone https://github.com/armans-code/me.git
+    cd me
+    ```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    <Note>
+      The repository is available at [armank.dev](https://armank.dev) - check the GitHub profile at [@armans-code](https://github.com/armans-code) for the source code.
+    </Note>
+  </Step>
 
-### Step 3: Go live
+  <Step title="Install dependencies">
+    Install the required packages using your preferred package manager:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    <CodeGroup>
+      ```bash npm
+      npm install
+      ```
 
-## Next steps
+      ```bash pnpm
+      pnpm install
+      ```
 
-Now that you have your docs running, explore these key features:
+      ```bash yarn
+      yarn install
+      ```
+    </CodeGroup>
 
-<CardGroup cols={2}>
+    The project includes these key dependencies:
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+    ```json package.json
+    {
+      "dependencies": {
+        "@supabase/ssr": "^0.8.0",
+        "@supabase/supabase-js": "^2.97.0",
+        "lucide-react": "^0.575.0",
+        "next": "^16.1.6",
+        "react": "^19.2.4",
+        "react-dom": "^19.2.4"
+      }
+    }
+    ```
+  </Step>
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+  <Step title="Configure environment variables (Optional)">
+    If you want to use Supabase features, create a `.env.local` file:
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+    ```bash
+    touch .env.local
+    ```
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+    Add your Supabase credentials:
 
-</CardGroup>
+    ```bash .env.local
+    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+    ```
+
+    <Info>
+      Supabase is optional for basic functionality. The CLI and GUI interfaces work without it. It's primarily used for backend features like the anonymous notes functionality.
+    </Info>
+  </Step>
+
+  <Step title="Start the development server">
+    Run the development server:
+
+    <CodeGroup>
+      ```bash npm
+      npm run dev
+      ```
+
+      ```bash pnpm
+      pnpm dev
+      ```
+
+      ```bash yarn
+      yarn dev
+      ```
+    </CodeGroup>
+
+    You should see output similar to:
+
+    ```plaintext
+    ▲ Next.js 16.1.6
+    - Local:        http://localhost:3000
+    - Environments: .env.local
+
+    ✓ Starting...
+    ✓ Ready in 2.3s
+    ```
+  </Step>
+
+  <Step title="Open in your browser">
+    Navigate to [http://localhost:3000](http://localhost:3000) to see the CLI interface:
+
+    <img src="/images/cli-preview.png" alt="CLI Interface" />
+
+    The homepage displays:
+    - Personal introduction
+    - Social links (Twitter, GitHub, LinkedIn)
+    - Interactive CLI component at the bottom
+  </Step>
+</Steps>
+
+## Exploring the CLI
+
+Once the site is running, try these commands in the CLI:
+
+### Basic Commands
+
+```bash
+help
+```
+Displays all available commands
+
+```bash
+whoami
+```
+Shows the current user (returns "arman")
+
+```bash
+ls
+```
+Lists all available files and directories:
+- `thoughts` (directory)
+- `experience.txt`
+- `socials.txt`
+- `gui.app`
+
+### Reading Files
+
+```bash
+cat experience.txt
+```
+Displays work experience and internship history:
+
+```plaintext
+mintlify (w22):
+ - software engineer intern (may 2025 - august 2025)
+ - Next.js, MongoDB, Express
+
+apten (s24):
+ - software engineer intern (may 2024 - july 2024)
+ - Next.js, LangChain, AWS CDK
+...
+```
+
+```bash
+cat socials.txt
+```
+Shows social media links:
+
+```plaintext
+twitter: ksw_arman
+github: armans-code
+linkedin: armankumaraswamy
+```
+
+### Navigation
+
+```bash
+cd thoughts
+```
+Navigates to the thoughts (blog) section
+
+```bash
+./gui.app
+```
+Opens the Windows 98-style GUI version of the site
+
+### Fun Commands
+
+```bash
+touch kitty.jpg
+```
+Creates a new file with a random cat image from the cataas.com API!
+
+```bash
+rm kitty.jpg
+```
+Removes the file you just created
+
+```bash
+clear
+```
+Clears the terminal output
+
+```bash
+reset
+```
+Resets the file system to its initial state
+
+<Info>
+  Press **Arrow Up** to recall your last command - just like a real terminal!
+</Info>
+
+## Exploring the GUI
+
+Switch to the GUI interface by:
+
+1. Running `./gui.app` in the CLI, or
+2. Navigating directly to [http://localhost:3000/gui](http://localhost:3000/gui)
+
+The GUI features:
+- **Desktop icons** you can single-click to select and double-click to open
+- **Draggable windows** with authentic Windows 98 styling
+- **Resizable windows** using the bottom-right corner handle
+- **Taskbar** showing open windows
+- **Terminal icon** that links back to the CLI version
+
+## Project Structure Overview
+
+Key files you might want to explore:
+
+```plaintext
+📁 src/
+├── 📁 app/
+│   ├── 📄 page.tsx              # Main homepage with CLI
+│   ├── 📄 layout.tsx            # Root layout, metadata, fonts
+│   ├── 📁 gui/
+│   │   ├── 📄 page.tsx          # GUI version wrapper
+│   │   └── 📄 mini-desktop.tsx  # Windows 98 desktop logic
+│   ├── 📁 thoughts/
+│   │   ├── 📄 page.tsx          # Blog listing
+│   │   └── 📄 [id]/page.tsx     # Individual blog posts
+│   └── 📁 api/
+├── 📁 components/
+│   └── 📄 cli.tsx               # CLI component with all commands
+└── 📁 utils/
+    └── 📁 supabase/
+        └── 📄 server.ts         # Supabase client setup
+```
+
+## Understanding the CLI Component
+
+The CLI component (`src/components/cli.tsx`) is the heart of the interactive experience:
+
+```tsx src/components/cli.tsx
+const INITIAL_FILES = [
+  {
+    name: "thoughts",
+    content: "run 'cd thoughts' to see my thoughts on various topics",
+  },
+  {
+    name: "experience.txt",
+    content: "mintlify (w22):\n - software engineer intern...",
+  },
+  {
+    name: "socials.txt",
+    content: "twitter: ksw_arman\ngithub: armans-code...",
+  },
+  {
+    name: "gui.app",
+    content: "run './gui.app' to open the GUI version",
+  },
+];
+```
+
+The component maintains:
+- **Message history**: All inputs and outputs
+- **Virtual file system**: Simulated files you can interact with
+- **Command parser**: Handles 11+ different commands
+- **State management**: Tracks files, messages, and user input
+
+## Next Steps
+
+Now that you have the project running:
+
+1. **Customize the content**: Edit `INITIAL_FILES` in `src/components/cli.tsx` to personalize the files
+2. **Add new commands**: Extend the command switch statement to add your own commands
+3. **Modify the styling**: Update Tailwind classes or `globals.css` to change the look
+4. **Add blog posts**: Create new pages in `src/app/thoughts/` for your writing
+5. **Deploy**: The project includes a `vercel.json` and is ready for Vercel deployment
+
+## Available Scripts
+
+Defined in `package.json`:
+
+```json
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  }
+}
+```
+
+- `dev`: Start development server on port 3000
+- `build`: Create optimized production build
+- `start`: Run production server
+- `lint`: Run ESLint to check code quality
+
+## Building for Production
+
+When you're ready to deploy:
+
+```bash
+npm run build
+```
+
+This creates an optimized production build in `.next/`. You can then deploy to Vercel, Netlify, or any platform that supports Next.js.
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+  The project is already configured for Vercel deployment with `vercel.json` included.
 </Note>
+
+## Troubleshooting
+
+### Port Already in Use
+
+If port 3000 is already in use, you can specify a different port:
+
+```bash
+npm run dev -- -p 3001
+```
+
+### Module Not Found Errors
+
+Ensure all dependencies are installed:
+
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### TypeScript Errors
+
+The project uses TypeScript 5.9.3. If you encounter type errors, check your Node.js version is 18+:
+
+```bash
+node --version
+```
+
+## Get Help
+
+If you run into issues:
+
+- Check the [Next.js documentation](https://nextjs.org/docs)
+- Review the source code on [GitHub](https://github.com/armans-code)
+- Reach out via [Twitter](https://x.com/ksw_arman) or [LinkedIn](https://www.linkedin.com/in/armankumaraswamy/)

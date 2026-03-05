@@ -1,0 +1,276 @@
+---
+title: Customizing Styles
+description: Learn how to customize colors, fonts, and themes for your personal website
+---
+
+## Overview
+
+The website uses Next.js with Tailwind CSS for styling. You can customize colors, fonts, and the overall theme by modifying CSS files and layout configurations.
+
+## Customizing Colors
+
+### Background Color
+
+The main background color is set in the root layout. To change it, edit `src/app/layout.tsx`:
+
+```tsx src/app/layout.tsx
+return (
+  <html className="bg-[#0f0f0f]" lang="en">
+    <body className={geistMono.className}>{children}</body>
+  </html>
+);
+```
+
+Replace `bg-[#0f0f0f]` with any hex color:
+- `bg-[#1a1a1a]` for a lighter dark background
+- `bg-[#000000]` for pure black
+- `bg-white` for a light theme
+
+### Text Colors
+
+The website uses several Tailwind color classes throughout:
+
+**CLI Component** (`src/components/cli.tsx`):
+```tsx
+<p
+  className={
+    message.type === "input"
+      ? "text-indigo-300"
+      : "text-green-300 whitespace-pre-wrap"
+  }
+>
+```
+
+**Homepage** (`src/app/page.tsx`):
+```tsx
+<div className="text-gray-300 p-4 w-full flex justify-center">
+  <p className="text-gray-400 text-sm">San Francisco, CA</p>
+  <Link className="hover:font-bold hover:underline underline-offset-4">
+    [twitter]
+  </Link>
+</div>
+```
+
+<Steps>
+  <Step title="Choose your color palette">
+    Decide on primary colors for:
+    - Main text (currently `text-gray-300`)
+    - Secondary text (currently `text-gray-400`)
+    - Input commands (currently `text-indigo-300`)
+    - Output messages (currently `text-green-300`)
+    - Links and accents (currently `text-indigo-300`)
+  </Step>
+  
+  <Step title="Replace color classes">
+    Search for existing color classes in your files and replace them:
+    - In `src/components/cli.tsx` for terminal colors
+    - In `src/app/page.tsx` for homepage content
+    - Any other custom components you create
+  </Step>
+  
+  <Step title="Test in browser">
+    Run `npm run dev` and check your changes in the browser to ensure good contrast and readability.
+  </Step>
+</Steps>
+
+### Link Underline Colors
+
+Links can have custom underline colors using the `decoration-*` classes:
+
+```tsx
+<Link className="underline decoration-blue-500 underline-offset-4">
+  The Context Company
+</Link>
+```
+
+Available decoration colors:
+- `decoration-blue-500`
+- `decoration-green-500`
+- `decoration-orange-300`
+- `decoration-red-500`
+- Or any Tailwind color
+
+## Customizing Fonts
+
+### GeistMono Font
+
+The website uses the GeistMono variable font. The configuration is in `src/app/layout.tsx`:
+
+```tsx src/app/layout.tsx
+import localFont from "next/font/local";
+
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff",
+  variable: "--font-geist-mono",
+  weight: "100 900",
+});
+
+export default function RootLayout({ children }) {
+  return (
+    <html className="bg-[#0f0f0f]" lang="en">
+      <body className={geistMono.className}>{children}</body>
+    </html>
+  );
+}
+```
+
+### Using a Different Font
+
+<Steps>
+  <Step title="Add your font file">
+    Place your font file (`.woff`, `.woff2`, `.ttf`) in `src/app/fonts/`
+  </Step>
+  
+  <Step title="Update the font configuration">
+    ```tsx src/app/layout.tsx
+    const myCustomFont = localFont({
+      src: "./fonts/YourFont.woff",
+      variable: "--font-custom",
+      weight: "400 700",
+    });
+    ```
+  </Step>
+  
+  <Step title="Apply the font to the body">
+    ```tsx src/app/layout.tsx
+    <body className={myCustomFont.className}>{children}</body>
+    ```
+  </Step>
+</Steps>
+
+### Using Google Fonts
+
+You can also use Next.js Google Fonts integration:
+
+```tsx src/app/layout.tsx
+import { Space_Mono } from "next/font/google";
+
+const spaceMono = Space_Mono({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+});
+
+export default function RootLayout({ children }) {
+  return (
+    <html className="bg-[#0f0f0f]" lang="en">
+      <body className={spaceMono.className}>{children}</body>
+    </html>
+  );
+}
+```
+
+Popular monospace fonts for a terminal aesthetic:
+- `Courier_Prime`
+- `Space_Mono`
+- `Roboto_Mono`
+- `JetBrains_Mono`
+- `Fira_Code`
+
+## Global CSS Customization
+
+The `src/app/globals.css` file uses Tailwind v4 syntax:
+
+```css src/app/globals.css
+@import 'tailwindcss';
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+```
+
+You can add custom CSS variables here:
+
+```css src/app/globals.css
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: #6366f1;
+  --color-secondary: #22c55e;
+}
+```
+
+Then reference them in your components:
+
+```tsx
+<div className="text-[var(--color-accent)]">
+  Custom accent color
+</div>
+```
+
+## Dark Theme Support
+
+To add automatic dark mode detection:
+
+<Steps>
+  <Step title="Remove hardcoded background">
+    Change the `<html>` class from a fixed color to a responsive one:
+    ```tsx src/app/layout.tsx
+    <html className="dark:bg-[#0f0f0f] bg-white" lang="en">
+    ```
+  </Step>
+  
+  <Step title="Add dark mode color variants">
+    Use Tailwind's `dark:` prefix throughout your components:
+    ```tsx
+    <div className="text-gray-900 dark:text-gray-300">
+      <p className="text-gray-600 dark:text-gray-400">Content</p>
+    </div>
+    ```
+  </Step>
+  
+  <Step title="Update metadata for theme-color">
+    ```tsx src/app/layout.tsx
+    export const metadata: Metadata = {
+      title: "arman's living room",
+      themeColor: [
+        { media: "(prefers-color-scheme: light)", color: "white" },
+        { media: "(prefers-color-scheme: dark)", color: "#0f0f0f" },
+      ],
+    };
+    ```
+  </Step>
+</Steps>
+
+<Warning>
+  If you change from a dark-only to a responsive theme, make sure to update all text colors to ensure readability in both modes. Test thoroughly with `dark:` prefixes.
+</Warning>
+
+## Common Styling Patterns
+
+### Hover Effects
+
+The homepage links use hover effects:
+
+```tsx
+<Link className="hover:font-bold hover:underline underline-offset-4">
+  [twitter]
+</Link>
+```
+
+### Responsive Layout
+
+The social links adjust for mobile:
+
+```tsx
+<div className="flex sm:flex-row flex-col gap-4">
+  {/* Links */}
+</div>
+```
+
+### Spacing and Layout
+
+```tsx
+<div className="text-gray-300 p-4 w-full flex justify-center">
+  <div className="mb-4 mt-16 flex flex-col gap-4">
+    {/* Content */}
+  </div>
+</div>
+```
+
+Key classes:
+- `p-4` - Padding on all sides
+- `mt-16` - Top margin
+- `mb-4` - Bottom margin
+- `gap-4` - Space between flex items
+- `flex-col` - Vertical stacking

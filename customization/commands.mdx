@@ -1,0 +1,420 @@
+---
+title: Customizing CLI Commands
+description: Learn how to add and modify terminal commands in your interactive CLI
+---
+
+## Overview
+
+The CLI component (`src/components/cli.tsx`) implements an interactive terminal. You can add custom commands, modify existing ones, and create interactive features.
+
+## Command Structure
+
+### Commands Array
+
+All available commands are defined in the `commands` array:
+
+```tsx src/components/cli.tsx
+const commands = [
+  "",
+  "whoami",
+  "ls",
+  "help",
+  "cd",
+  "cat",
+  "clear",
+  "touch",
+  "rm",
+  "reset",
+  "./gui.app",
+  "./talk.app",
+];
+```
+
+<Warning>
+  The empty string `""` at the beginning is intentional - it handles empty command submissions. Don't remove it.
+</Warning>
+
+### Command Handler Switch Statement
+
+Commands are processed in a large switch statement inside the `handleSubmit` function:
+
+```tsx src/components/cli.tsx
+if (commands.includes(input.toLowerCase().split(" ")[0])) {
+  switch (input.toLowerCase()) {
+    case "whoami":
+      setMessages((prev) => [
+        ...prev,
+        { message: "arman", type: "output" },
+      ]);
+      break;
+    
+    case "ls":
+      setMessages((prev) => [
+        ...prev,
+        {
+          message: files.map((file) => file.name).join("\n"),
+          type: "output",
+        },
+      ]);
+      break;
+    
+    case "clear":
+      setMessages([]);
+      break;
+    
+    // ... more cases
+  }
+} else {
+  setMessages((prev) => [
+    ...prev,
+    {
+      message: `cli: command not found: ${input}`,
+      type: "output",
+    },
+  ]);
+}
+```
+
+## Adding a Simple Command
+
+Let's add a `date` command that shows the current date:
+
+<Steps>
+  <Step title="Add command to array">
+    ```tsx src/components/cli.tsx
+    const commands = [
+      "",
+      "whoami",
+      "ls",
+      "help",
+      "cd",
+      "cat",
+      "clear",
+      "touch",
+      "rm",
+      "reset",
+      "./gui.app",
+      "./talk.app",
+      "date", // Add this
+    ];
+    ```
+  </Step>
+  
+  <Step title="Add case to switch statement">
+    Add this case before the `default:` case:
+    ```tsx src/components/cli.tsx
+    case "date":
+      setMessages((prev) => [
+        ...prev,
+        { 
+          message: new Date().toLocaleString(), 
+          type: "output" 
+        },
+      ]);
+      break;
+    ```
+  </Step>
+  
+  <Step title="Test your command">
+    Run `npm run dev` and type `date` in the terminal to see the current date and time.
+  </Step>
+</Steps>
+
+## Adding Commands with Arguments
+
+Some commands like `cat`, `touch`, and `rm` accept arguments. They're handled in the `default` section:
+
+```tsx src/components/cli.tsx
+default:
+  if (input.toLowerCase().startsWith("cat")) {
+    const fileName = input.toLowerCase().split(" ")[1];
+    if (!fileName) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          message: "usage: cat <filename> (e.g. cat file.txt)",
+          type: "output",
+        },
+      ]);
+      break;
+    }
+    const file = files.find((file) => file.name === fileName);
+    if (file) {
+      setMessages((prev) => [
+        ...prev,
+        { message: file.content, type: "output" },
+      ]);
+    } else {
+      setMessages((prev) => [
+        ...prev,
+        {
+          message: `cat: ${fileName}: No such file or directory`,
+          type: "output",
+        },
+      ]);
+    }
+  }
+```
+
+### Example: Adding a `greet` Command
+
+Let's add a command that greets a user by name:
+
+<Steps>
+  <Step title="Add to commands array">
+    ```tsx src/components/cli.tsx
+    const commands = [
+      // ... existing commands
+      "greet",
+    ];
+    ```
+  </Step>
+  
+  <Step title="Add handler in default section">
+    Add this after the other `if` blocks in the `default` case:
+    ```tsx src/components/cli.tsx
+    else if (input.toLowerCase().startsWith("greet")) {
+      const name = input.split(" ").slice(1).join(" ");
+      if (!name) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: "usage: greet <name> (e.g. greet Alice)",
+            type: "output",
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: `Hello, ${name}! Welcome to the terminal.`,
+            type: "output",
+          },
+        ]);
+      }
+    }
+    ```
+  </Step>
+</Steps>
+
+## The INITIAL_FILES Array
+
+The CLI uses a file system simulation with the `INITIAL_FILES` array:
+
+```tsx src/components/cli.tsx
+const INITIAL_FILES = [
+  {
+    name: "thoughts",
+    content: "run 'cd thoughts' to see my thoughts on various topics",
+  },
+  {
+    name: "experience.txt",
+    content:
+      "mintlify (w22):\n - software engineer intern (may 2025 - august 2025)\n - Next.js, MongoDB, Express\n\napten (s24):\n - software engineer intern (may 2024 - july 2024)\n - Next.js, LangChain, AWS CDK\n\nrevisiondojo (f24):\n - software engineer (october 2023 - march 2024)\n - Next.js, PostgreSQL, NoSQL\n\nsolace health:\n - software engineer intern (july 2023 - october 2023)\n - Next.js, NestJS, PostgreSQL, Redis",
+  },
+  {
+    name: "socials.txt",
+    content:
+      "twitter: ksw_arman\ngithub: armans-code\nlinkedin: armankumaraswamy",
+  },
+  {
+    name: "gui.app",
+    content: "run './gui.app' to open the GUI version of this website",
+  },
+];
+```
+
+### File Interface
+
+```tsx src/components/cli.tsx
+interface File {
+  name: string;
+  content: string;
+}
+```
+
+### Adding a New File
+
+<Steps>
+  <Step title="Add to INITIAL_FILES array">
+    ```tsx src/components/cli.tsx
+    const INITIAL_FILES = [
+      // ... existing files
+      {
+        name: "skills.txt",
+        content: "JavaScript\nTypeScript\nReact\nNext.js\nNode.js\nPython",
+      },
+    ];
+    ```
+  </Step>
+  
+  <Step title="Test with ls and cat commands">
+    - Run `ls` to see your new file listed
+    - Run `cat skills.txt` to display its contents
+  </Step>
+</Steps>
+
+## Navigation Commands
+
+The `cd` command handles navigation to different pages:
+
+```tsx src/components/cli.tsx
+else if (input.toLowerCase().startsWith("cd")) {
+  const directory = input.toLowerCase().split(" ")[1];
+  if (directory == "thoughts") {
+    window.location.href = "/thoughts";
+  } else {
+    setMessages((prev) => [
+      ...prev,
+      {
+        message: `cd: no such file or directory: ${directory}`,
+        type: "output",
+      },
+    ]);
+  }
+}
+```
+
+### Adding a New Navigation Route
+
+To add `cd projects` that navigates to `/projects`:
+
+```tsx src/components/cli.tsx
+if (directory == "thoughts") {
+  window.location.href = "/thoughts";
+} else if (directory == "projects") {
+  window.location.href = "/projects";
+} else {
+  setMessages((prev) => [
+    ...prev,
+    {
+      message: `cd: no such file or directory: ${directory}`,
+      type: "output",
+    },
+  ]);
+}
+```
+
+## Executable Commands (.app)
+
+Executable commands like `./gui.app` trigger special actions:
+
+```tsx src/components/cli.tsx
+case "./gui.app":
+  setMessages((prev) => [
+    ...prev,
+    { message: "opening GUI...", type: "output" },
+  ]);
+  setTimeout(() => {
+    window.location.href = "/gui";
+  }, 300);
+  break;
+```
+
+The `setTimeout` creates a small delay for better UX.
+
+### Adding a New Executable
+
+<Steps>
+  <Step title="Add to commands array">
+    ```tsx
+    const commands = [
+      // ... existing commands
+      "./portfolio.app",
+    ];
+    ```
+  </Step>
+  
+  <Step title="Add to INITIAL_FILES">
+    ```tsx
+    {
+      name: "portfolio.app",
+      content: "run './portfolio.app' to view my portfolio",
+    }
+    ```
+  </Step>
+  
+  <Step title="Add case handler">
+    ```tsx
+    case "./portfolio.app":
+      setMessages((prev) => [
+        ...prev,
+        { message: "opening portfolio...", type: "output" },
+      ]);
+      setTimeout(() => {
+        window.location.href = "/portfolio";
+      }, 300);
+      break;
+    ```
+  </Step>
+</Steps>
+
+## Interactive Commands
+
+The `touch` command is special - it fetches a cat image:
+
+```tsx src/components/cli.tsx
+else if (input.toLowerCase().startsWith("touch")) {
+  const fileName = input.toLowerCase().split(" ")[1];
+  if (!fileName) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        message: "usage: touch <filename> (e.g. touch file.txt)",
+        type: "output",
+      },
+    ]);
+    break;
+  }
+  if (files.find((file) => file.name === fileName)) {
+    setMessages((prev) => [
+      ...prev,
+      {
+        message: `touch: cannot touch '${fileName}': File exists`,
+        type: "output",
+      },
+    ]);
+  } else {
+    setInput("");
+    try {
+      const image = await fetch(
+        `https://cataas.com/cat?width=200&height=200`
+      ).then((data) => data.blob());
+      const imageUrl = URL.createObjectURL(image);
+      setFiles((prev) => [
+        ...prev,
+        {
+          name: fileName,
+          content: (
+            <img
+              src={imageUrl}
+              alt="cat"
+              className="w-40 h-40 object-cover"
+            />
+          ),
+        },
+      ]);
+    } catch {
+      // Fallback if rate limited
+      setFiles((prev) => [
+        ...prev,
+        {
+          name: fileName,
+          content: "🐈",
+        },
+      ]);
+    }
+    return;
+  }
+}
+```
+
+You can create similar interactive commands that:
+- Fetch data from APIs
+- Display images or rich content
+- Perform calculations
+- Make external requests
+
+<Warning>
+  The `touch` command stores React elements as file content using a type assertion. This is a special case - most commands should store plain strings.
+</Warning>

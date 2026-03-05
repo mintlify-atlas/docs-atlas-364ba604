@@ -1,0 +1,358 @@
+---
+title: 'Thoughts Blog'
+description: 'Personal blog section structure and how to add new posts'
+icon: 'blog'
+---
+
+## Overview
+
+The Thoughts blog is a simple, file-based blog section where Arman shares thoughts on various topics, primarily focused on technology, AI, and personal projects.
+
+## Blog Structure
+
+The blog uses a straightforward directory-based structure:
+
+```
+src/app/thoughts/
+├── page.tsx          # Blog index/list page
+└── [id]/
+    └── page.tsx      # Individual blog post pages
+```
+
+### Index Page
+
+The main thoughts page lists all blog posts with titles, dates, and links.
+
+**Implementation:** (thoughts/page.tsx)
+```tsx
+function Page() {
+  return (
+    <div className="md:w-3/5 w-4/5 flex flex-col gap-8">
+      <div className="relative mb-4">
+        <h1 className="absolute -left-5">
+          <Link className="hover:underline" href="/">
+            home
+          </Link>{" "}
+          / <span className="text-orange-300">thoughts</span>
+        </h1>
+      </div>
+      <Link href="/thoughts/1" className="hover:underline max-w-fit">
+        <span className="text-indigo-300">1.</span> Wearable AI that remembers
+        everything I see and hear{" "}
+        <span className="text-sm text-gray-400">(04/24/2025)</span>
+      </Link>
+    </div>
+  );
+}
+```
+
+**Breadcrumb Navigation:**
+- Shows current location: `home / thoughts`
+- Links back to home page
+- Current section highlighted in orange
+
+**Post List Format:**
+```tsx
+<span className="text-indigo-300">{post_number}.</span> {post_title}
+<span className="text-sm text-gray-400">({date})</span>
+```
+
+### Individual Post Page
+
+Each post has its own route under `/thoughts/[id]/`.
+
+**Current Post:** `/thoughts/1` - "Wearable AI that remembers everything I see and hear"
+
+**Implementation:** (thoughts/1/page.tsx)
+```tsx
+function Page() {
+  return (
+    <div className="md:w-3/5 w-4/5 flex flex-col gap-4">
+      {/* Breadcrumb */}
+      <div className="relative mb-4">
+        <h1 className="absolute -left-5">
+          <Link className="hover:underline" href="/">
+            home
+          </Link>{" "}
+          /
+          <Link className="hover:underline" href="/thoughts">
+            thoughts
+          </Link>{" "}
+          / <span className="text-orange-300">one</span>
+        </h1>
+      </div>
+
+      {/* Post Header */}
+      <div className="mt-4">
+        <h1 className="-left-5 relative text-lg">
+          Wearable AI that remembers everything I see and hear
+        </h1>
+        <p className="-left-5 relative text-gray-400">04/24/2025</p>
+      </div>
+
+      {/* Section Headers */}
+      <div className="relative">
+        <p className="absolute -left-5">&gt;</p>
+        <h1 className="text-indigo-300">motivation</h1>
+      </div>
+
+      {/* Post Content */}
+      <p>In the last year, this project idea has repeatedly come to mind...</p>
+      
+      {/* More sections */}
+      <div className="relative">
+        <p className="absolute -left-5">&gt;</p>
+        <h1 className="text-indigo-300">progress and implementation</h1>
+      </div>
+      
+      <p>Smart glasses can <i>easily</i> capture everything...</p>
+    </div>
+  );
+}
+```
+
+## Adding New Blog Posts
+
+### Step 1: Create Post Directory
+
+Create a new directory under `src/app/thoughts/` with the next sequential number:
+
+```bash
+mkdir src/app/thoughts/2
+```
+
+### Step 2: Create Post Page
+
+Create `page.tsx` in the new directory:
+
+```tsx
+import Link from "next/link";
+
+function Page() {
+  return (
+    <div className="md:w-3/5 w-4/5 flex flex-col gap-4">
+      {/* Breadcrumb Navigation */}
+      <div className="relative mb-4">
+        <h1 className="absolute -left-5">
+          <Link className="hover:underline" href="/">
+            home
+          </Link>{" "}
+          /
+          <Link className="hover:underline" href="/thoughts">
+            thoughts
+          </Link>{" "}
+          / <span className="text-orange-300">two</span>
+        </h1>
+      </div>
+
+      {/* Post Header */}
+      <div className="mt-4">
+        <h1 className="-left-5 relative text-lg">
+          Your Post Title Here
+        </h1>
+        <p className="-left-5 relative text-gray-400">01/15/2026</p>
+      </div>
+
+      {/* Section Header */}
+      <div className="relative">
+        <p className="absolute -left-5">&gt;</p>
+        <h1 className="text-indigo-300">section title</h1>
+      </div>
+
+      {/* Content */}
+      <p>
+        Your content here...
+      </p>
+
+      {/* Additional sections */}
+    </div>
+  );
+}
+
+export default Page;
+```
+
+### Step 3: Update Index Page
+
+Add the new post to the list in `src/app/thoughts/page.tsx`:
+
+```tsx
+function Page() {
+  return (
+    <div className="md:w-3/5 w-4/5 flex flex-col gap-8">
+      <div className="relative mb-4">
+        <h1 className="absolute -left-5">
+          <Link className="hover:underline" href="/">
+            home
+          </Link>{" "}
+          / <span className="text-orange-300">thoughts</span>
+        </h1>
+      </div>
+      
+      {/* Existing post */}
+      <Link href="/thoughts/1" className="hover:underline max-w-fit">
+        <span className="text-indigo-300">1.</span> Wearable AI that remembers
+        everything I see and hear{" "}
+        <span className="text-sm text-gray-400">(04/24/2025)</span>
+      </Link>
+      
+      {/* New post */}
+      <Link href="/thoughts/2" className="hover:underline max-w-fit">
+        <span className="text-indigo-300">2.</span> Your Post Title Here{" "}
+        <span className="text-sm text-gray-400">(01/15/2026)</span>
+      </Link>
+    </div>
+  );
+}
+```
+
+## Navigation from CLI
+
+Users can access the blog from the CLI using the `cd` command:
+
+```bash
+$ cd thoughts
+# Redirects to /thoughts
+```
+
+**Implementation:** (cli.tsx:254-256)
+```tsx
+const directory = input.toLowerCase().split(" ")[1];
+if (directory == "thoughts") {
+  window.location.href = "/thoughts";
+}
+```
+
+## Styling Guidelines
+
+### Color Scheme
+
+- **Breadcrumb links:** Standard color with `hover:underline`
+- **Current section:** Orange (`text-orange-300`)
+- **Post numbers:** Indigo (`text-indigo-300`)
+- **Dates:** Gray (`text-gray-400`)
+- **Section headers:** Indigo (`text-indigo-300`)
+- **Section prefix:** `>` symbol positioned absolutely at `-left-5`
+
+### Typography
+
+- **Post title:** `text-lg`
+- **Section headers:** Default size, indigo color
+- **Body text:** Default paragraph styling
+- **Dates:** `text-sm text-gray-400`
+
+### Layout
+
+- **Container width:** `md:w-3/5 w-4/5` (responsive)
+- **Gap between elements:** `gap-4` for post content, `gap-8` for post list
+- **Left offset for elements:** `-left-5 relative` for headers and decorations
+
+### Lists
+
+For bulleted lists, use left margin and manual bullets:
+
+```tsx
+<div className="ml-5">
+  <p>- First point</p>
+  <p>- Second point</p>
+  <p>- Third point</p>
+</div>
+```
+
+## Example Post Structure
+
+```tsx
+{/* Header */}
+<div className="mt-4">
+  <h1 className="-left-5 relative text-lg">Post Title</h1>
+  <p className="-left-5 relative text-gray-400">MM/DD/YYYY</p>
+</div>
+
+{/* Introduction */}
+<p>Opening paragraph...</p>
+
+{/* Section 1 */}
+<div className="relative">
+  <p className="absolute -left-5">&gt;</p>
+  <h1 className="text-indigo-300">section one</h1>
+</div>
+<p>Section content...</p>
+
+{/* Bullet list */}
+<div className="ml-5">
+  <p>- Point one</p>
+  <p>- Point two</p>
+</div>
+
+{/* Section 2 */}
+<div className="relative">
+  <p className="absolute -left-5">&gt;</p>
+  <h1 className="text-indigo-300">section two</h1>
+</div>
+<p>More content...</p>
+
+{/* External links */}
+<p>
+  Check out{" "}
+  <Link
+    href="https://example.com"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="underline"
+  >
+    this resource
+  </Link>
+  .
+</p>
+```
+
+## Content Guidelines
+
+<AccordionGroup>
+  <Accordion title="Writing Style">
+    - Use first person ("I'm working on...")
+    - Keep it conversational and authentic
+    - Focus on personal projects, ideas, and learnings
+    - Be honest about work-in-progress and uncertainties
+  </Accordion>
+
+  <Accordion title="Formatting">
+    - Use section headers with `>` prefix for major topics
+    - Keep paragraphs concise (2-4 sentences)
+    - Use bullet lists for multiple related points
+    - Include external links where relevant
+    - Use `<i>` tags for emphasis instead of bold
+  </Accordion>
+
+  <Accordion title="Technical Content">
+    - Explain technical concepts clearly
+    - Link to external resources and references
+    - Share implementation details when relevant
+    - Discuss both successes and challenges
+  </Accordion>
+</AccordionGroup>
+
+<Note>
+The blog is intentionally simple - no CMS, no markdown processing, just React components. This keeps the codebase minimal and maintainable.
+</Note>
+
+<Tip>
+**Post numbering:** Use sequential numbers (1, 2, 3...) for post IDs and display them in the list for a clean, chronological organization.
+</Tip>
+
+## Current Blog Post
+
+The first post discusses a wearable AI project:
+
+**Title:** Wearable AI that remembers everything I see and hear  
+**Date:** 04/24/2025  
+**Topics:** AI, wearables, memory systems, RAG, graph memory
+
+**Sections:**
+1. **motivation** - Why the project matters
+2. **progress and implementation** - Technical approach (RAG, long context, graph memory)
+3. **i could really use some help** - Call for collaboration
+
+<Info>
+The post includes external links (e.g., to Google's Project Astra) and demonstrates the authentic, work-in-progress style that characterizes the blog.
+</Info>

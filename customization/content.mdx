@@ -1,0 +1,402 @@
+---
+title: Customizing Content
+description: Learn how to update personal information, social links, and experience details
+---
+
+## Overview
+
+Your personal website content is spread across two main files:
+- `src/app/page.tsx` - Homepage with bio and social links
+- `src/components/cli.tsx` - CLI files containing experience and contact info
+
+## Homepage Content
+
+The main homepage content is in `src/app/page.tsx`:
+
+```tsx src/app/page.tsx
+export default function Home() {
+  return (
+    <div className="text-gray-300 p-4 w-full flex justify-center">
+      <div>
+        <div className="mb-4 mt-16 flex flex-col gap-4">
+          <div>
+            <p>Arman Kumaraswamy</p>
+            <p className="text-gray-400 text-sm">San Francisco, CA</p>
+          </div>
+          <p>&gt; hi!</p>
+          <p>
+            &gt; i&apos;m a co-founder at{" "}
+            <Link 
+              href="https://thecontext.company/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="underline decoration-blue-500 underline-offset-4"
+            >
+              The Context Company
+            </Link>
+            {" "}- we do semantic failure monitoring for AI agents.
+          </p>
+          <p>
+            &gt; i love full-stack web dev, typescript, and agentic workflows.
+          </p>
+          <p>
+            &gt; i&apos;m a big believer in authentic, compounding relationships.
+            please feel free to reach out to me!
+          </p>
+        </div>
+        <CLI />
+      </div>
+    </div>
+  );
+}
+```
+
+### Updating Personal Information
+
+<Steps>
+  <Step title="Update name and location">
+    Replace the name and location with your own:
+    ```tsx src/app/page.tsx
+    <div>
+      <p>Your Name</p>
+      <p className="text-gray-400 text-sm">Your City, State</p>
+    </div>
+    ```
+  </Step>
+  
+  <Step title="Update bio paragraphs">
+    Customize the introduction paragraphs to reflect your story:
+    ```tsx src/app/page.tsx
+    <p>&gt; hi!</p>
+    <p>
+      &gt; i&apos;m a [your role] at{" "}
+      <Link 
+        href="https://your-company.com/" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        className="underline decoration-blue-500 underline-offset-4"
+      >
+        Your Company
+      </Link>
+      {" "}- we do [what you do].
+    </p>
+    <p>
+      &gt; i love [your interests].
+    </p>
+    ```
+  </Step>
+  
+  <Step title="Keep the terminal aesthetic">
+    Notice the `&gt;` prefix - this creates the terminal-style prompt. Keep this for consistency:
+    - `&gt;` renders as `>`
+    - `&apos;` renders as `'`
+  </Step>
+</Steps>
+
+### Adding Links to Content
+
+The homepage includes inline links with custom styling:
+
+```tsx src/app/page.tsx
+<Link 
+  href="https://thecontext.company/" 
+  target="_blank" 
+  rel="noopener noreferrer" 
+  className="underline decoration-blue-500 underline-offset-4"
+>
+  The Context Company
+</Link>
+```
+
+Key attributes:
+- `target="_blank"` - Opens in new tab
+- `rel="noopener noreferrer"` - Security best practice for external links
+- `decoration-blue-500` - Colored underline (change to any Tailwind color)
+
+## Social Links
+
+Social links are displayed below the bio:
+
+```tsx src/app/page.tsx
+<div className="flex sm:flex-row flex-col gap-4 text-indigo-300">
+  <Link
+    className="hover:font-bold hover:underline underline-offset-4"
+    href="https://x.com/ksw_arman"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    [twitter]
+  </Link>
+  <Link
+    className="hover:font-bold hover:underline underline-offset-4"
+    href="https://github.com/armans-code"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    [github]
+  </Link>
+  <Link
+    className="hover:font-bold hover:underline underline-offset-4"
+    href="https://www.linkedin.com/in/armankumaraswamy/"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    [linkedin]
+  </Link>
+  <Link
+    className="hover:font-bold hover:underline underline-offset-4"
+    href="/thoughts"
+  >
+    [thoughts]
+  </Link>
+</div>
+```
+
+### Updating Social Links
+
+<Steps>
+  <Step title="Update existing links">
+    Replace the URLs with your own profiles:
+    ```tsx
+    <Link
+      className="hover:font-bold hover:underline underline-offset-4"
+      href="https://x.com/your_username"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      [twitter]
+    </Link>
+    ```
+  </Step>
+  
+  <Step title="Add new social links">
+    Add additional platforms by duplicating the pattern:
+    ```tsx
+    <Link
+      className="hover:font-bold hover:underline underline-offset-4"
+      href="https://youtube.com/@yourchannel"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      [youtube]
+    </Link>
+    ```
+  </Step>
+  
+  <Step title="Remove unwanted links">
+    Simply delete the entire `<Link>` component for any platform you don't use.
+  </Step>
+</Steps>
+
+## CLI File Content
+
+The terminal displays files that can be read with `cat`. These are defined in `src/components/cli.tsx`:
+
+### Experience File
+
+```tsx src/components/cli.tsx
+{
+  name: "experience.txt",
+  content:
+    "mintlify (w22):\n - software engineer intern (may 2025 - august 2025)\n - Next.js, MongoDB, Express\n\napten (s24):\n - software engineer intern (may 2024 - july 2024)\n - Next.js, LangChain, AWS CDK\n\nrevisiondojo (f24):\n - software engineer (october 2023 - march 2024)\n - Next.js, PostgreSQL, NoSQL\n\nsolace health:\n - software engineer intern (july 2023 - october 2023)\n - Next.js, NestJS, PostgreSQL, Redis",
+}
+```
+
+<Warning>
+  The `\n` characters create line breaks in the terminal output. Make sure to include them for proper formatting.
+</Warning>
+
+### Updating Experience
+
+<Steps>
+  <Step title="Format your experience">
+    Follow this pattern for each role:
+    ```
+    company name (season/year):
+     - job title (start date - end date)
+     - Technologies used
+    ```
+  </Step>
+  
+  <Step title="Update the content string">
+    ```tsx src/components/cli.tsx
+    {
+      name: "experience.txt",
+      content:
+        "Company A:\n - Senior Engineer (jan 2024 - present)\n - React, Node.js, PostgreSQL\n\nCompany B:\n - Software Engineer (jun 2022 - dec 2023)\n - Python, Django, AWS",
+    }
+    ```
+  </Step>
+  
+  <Step title="Test with cat command">
+    Run `cat experience.txt` in the terminal to preview the formatting.
+  </Step>
+</Steps>
+
+### Socials File
+
+```tsx src/components/cli.tsx
+{
+  name: "socials.txt",
+  content:
+    "twitter: ksw_arman\ngithub: armans-code\nlinkedin: armankumaraswamy",
+}
+```
+
+Update with your usernames:
+
+```tsx src/components/cli.tsx
+{
+  name: "socials.txt",
+  content:
+    "twitter: your_handle\ngithub: your-username\nlinkedin: yourprofile\nyoutube: @yourchannel",
+}
+```
+
+### Adding Custom Files
+
+You can add any custom files to the CLI:
+
+```tsx src/components/cli.tsx
+const INITIAL_FILES = [
+  // ... existing files
+  {
+    name: "education.txt",
+    content:
+      "University of California, Berkeley\nB.S. Computer Science\n2020 - 2024\nGPA: 3.8",
+  },
+  {
+    name: "projects.txt",
+    content:
+      "1. AI Chat App - Next.js, OpenAI\n2. E-commerce Platform - React, Stripe\n3. Task Manager - Vue, Firebase",
+  },
+  {
+    name: "contact.txt",
+    content:
+      "email: you@example.com\nphone: (555) 123-4567\nwebsite: https://yoursite.com",
+  },
+];
+```
+
+Users can then run:
+- `ls` to see all files
+- `cat education.txt` to view education
+- `cat projects.txt` to view projects
+- `cat contact.txt` to view contact info
+
+## Page Metadata
+
+Update the site metadata in `src/app/layout.tsx`:
+
+```tsx src/app/layout.tsx
+export const metadata: Metadata = {
+  title: "arman's living room",
+  description: "arman's living room",
+  keywords: [
+    "arman",
+    "kumaraswamy",
+    "arman kumaraswamy",
+    "arman's living room",
+    "armank",
+    "armank.dev",
+    "armank dev",
+  ],
+};
+```
+
+### Customizing Metadata
+
+<Steps>
+  <Step title="Update title and description">
+    ```tsx src/app/layout.tsx
+    export const metadata: Metadata = {
+      title: "Your Name - Portfolio",
+      description: "Full-stack developer specializing in React and Node.js",
+    };
+    ```
+  </Step>
+  
+  <Step title="Update keywords for SEO">
+    ```tsx src/app/layout.tsx
+    keywords: [
+      "your name",
+      "software engineer",
+      "full stack developer",
+      "react developer",
+      "portfolio",
+      "your city",
+    ],
+    ```
+  </Step>
+  
+  <Step title="Add Open Graph metadata (optional)">
+    ```tsx src/app/layout.tsx
+    export const metadata: Metadata = {
+      title: "Your Name - Portfolio",
+      description: "Your description",
+      openGraph: {
+        title: "Your Name - Portfolio",
+        description: "Your description",
+        url: "https://yoursite.com",
+        siteName: "Your Name",
+        locale: "en_US",
+        type: "website",
+      },
+    };
+    ```
+  </Step>
+</Steps>
+
+## Adding Blog Posts
+
+The site has a `/thoughts` route for blog content. To add blog posts:
+
+<Steps>
+  <Step title="Create the blog post structure">
+    Blog posts would typically be in a `src/app/thoughts/` directory. Check if this exists or create your own blog implementation.
+  </Step>
+  
+  <Step title="Add link from homepage">
+    The homepage already has a link to `/thoughts`:
+    ```tsx
+    <Link
+      className="hover:font-bold hover:underline underline-offset-4"
+      href="/thoughts"
+    >
+      [thoughts]
+    </Link>
+    ```
+  </Step>
+  
+  <Step title="Add to CLI navigation">
+    The CLI already supports `cd thoughts`:
+    ```tsx src/components/cli.tsx
+    if (directory == "thoughts") {
+      window.location.href = "/thoughts";
+    }
+    ```
+  </Step>
+</Steps>
+
+## Content Best Practices
+
+### Terminal Aesthetic
+
+- Use `>` prefix for terminal-style prompts
+- Keep language casual and authentic
+- Use lowercase for a more relaxed feel
+- Format CLI files with `\n` for readability
+
+### Link Styling
+
+- External links: Always use `target="_blank"` and `rel="noopener noreferrer"`
+- Bracket notation: `[twitter]` maintains the terminal aesthetic
+- Hover effects: `hover:font-bold hover:underline` for interactivity
+- Custom underlines: Use `decoration-*` for colored underlines
+
+### File Organization
+
+- Keep related info in separate CLI files (experience, socials, education)
+- Use descriptive filenames (`.txt` extension for text content)
+- Use `.app` extension for executables that trigger actions
+- Add helpful hints in file content (e.g., "run 'cat file.txt' to view")

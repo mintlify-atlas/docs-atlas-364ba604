@@ -1,0 +1,145 @@
+---
+title: "Deploy to Vercel"
+description: "Step-by-step guide to deploy Arman's Living Room to Vercel"
+---
+
+## Overview
+
+This guide walks you through deploying the Next.js application to Vercel, the recommended hosting platform for Next.js applications.
+
+## Prerequisites
+
+- GitHub account with your repository
+- Vercel account (sign up at [vercel.com](https://vercel.com))
+- Environment variables configured (see [Environment Variables](/deployment/environment))
+
+## Deployment Steps
+
+<Steps>
+  <Step title="Connect Your Repository">
+    1. Log in to your Vercel account
+    2. Click "Add New Project"
+    3. Import your GitHub repository
+    4. Select the repository containing your Next.js application
+  </Step>
+
+  <Step title="Configure Build Settings">
+    Vercel automatically detects Next.js projects. Verify the following settings:
+
+    - **Framework Preset**: Next.js
+    - **Build Command**: `next build`
+    - **Output Directory**: `.next` (auto-detected)
+    - **Install Command**: `npm install` (or your package manager)
+
+    <Note>
+      The build command `next build` is defined in `package.json` under the `build` script.
+    </Note>
+  </Step>
+
+  <Step title="Set Environment Variables">
+    Configure the required environment variables in Vercel:
+
+    1. Navigate to "Environment Variables" section
+    2. Add the following variables (see [Environment Variables](/deployment/environment) for details):
+       - `NEXT_PUBLIC_SUPABASE_URL`
+       - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+       - `CRON_SECRET`
+
+    <Warning>
+      Environment variables must be set before deployment. Missing variables will cause the build or runtime to fail.
+    </Warning>
+  </Step>
+
+  <Step title="Deploy">
+    1. Click "Deploy"
+    2. Vercel will build and deploy your application
+    3. Monitor the build logs for any errors
+    4. Once complete, your site will be live at the provided URL
+  </Step>
+</Steps>
+
+## Vercel Configuration
+
+The project includes a `vercel.json` configuration file that sets up scheduled cron jobs:
+
+```json vercel.json
+{
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "20 16 * * *"
+    }
+  ]
+}
+```
+
+This configures a daily cron job that runs at 16:20 UTC (4:20 PM UTC) and hits the `/api/cron` endpoint. The cron job verifies Supabase connectivity by checking the `messages` table.
+
+<Note>
+  Cron jobs on Vercel require a Pro plan or higher. The cron endpoint is protected by the `CRON_SECRET` environment variable.
+</Note>
+
+## Next.js Configuration
+
+The `next.config.ts` file includes image optimization settings:
+
+```typescript next.config.ts
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "win98icons.alexmeub.com",
+        port: "",
+        pathname: "/icons/**",
+      },
+      {
+        protocol: "https",
+        hostname: "static.vecteezy.com",
+        port: "",
+        pathname: "/system/resources/thumbnails/025/221/361/small_2x/cartoon-cat-cute-ai-generate-png.png",
+      },
+    ],
+  },
+};
+```
+
+These remote patterns allow Next.js Image component to optimize images from external domains.
+
+## Post-Deployment
+
+After successful deployment:
+
+1. Visit your deployed site URL
+2. Test the Supabase integration
+3. Verify environment variables are working correctly
+4. Check the cron job logs in Vercel dashboard (if using Pro plan)
+
+## Troubleshooting
+
+### Build Fails
+
+- Check build logs for specific errors
+- Verify all environment variables are set correctly
+- Ensure dependencies in `package.json` are up to date
+
+### Runtime Errors
+
+- Check function logs in Vercel dashboard
+- Verify Supabase credentials are correct
+- Ensure database tables exist and are accessible
+
+### Cron Job Not Running
+
+- Verify you have a Vercel Pro plan or higher
+- Check the `CRON_SECRET` environment variable is set
+- Review cron job logs in Vercel dashboard
+
+## Automatic Deployments
+
+Vercel automatically deploys your application when you push to your connected Git repository:
+
+- **Production**: Deployments from your main/master branch
+- **Preview**: Deployments from pull requests and other branches
+
+Each deployment gets a unique URL for testing before merging to production.

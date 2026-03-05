@@ -1,0 +1,257 @@
+---
+title: 'Environment Variables'
+description: 'Configure environment variables for local development and production deployment'
+---
+
+## Overview
+
+This application requires specific environment variables to function correctly. These variables configure Supabase integration and secure the cron endpoint.
+
+## Required Environment Variables
+
+### Supabase Configuration
+
+The application uses Supabase for database operations. Two public environment variables are required:
+
+#### `NEXT_PUBLIC_SUPABASE_URL`
+
+- **Purpose**: The URL of your Supabase project
+- **Format**: `https://your-project-id.supabase.co`
+- **Used in**: `src/utils/supabase/server.ts:8`
+- **Scope**: Public (prefixed with `NEXT_PUBLIC_`)
+
+<Note>
+  Variables prefixed with `NEXT_PUBLIC_` are exposed to the browser. Only use this prefix for non-sensitive values like the Supabase URL.
+</Note>
+
+#### `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+- **Purpose**: The anonymous/public API key for Supabase client authentication
+- **Format**: Long base64-encoded string (starts with `eyJ`)
+- **Used in**: `src/utils/supabase/server.ts:9`
+- **Scope**: Public (prefixed with `NEXT_PUBLIC_`)
+
+<Warning>
+  The anon key is designed to be public, but ensure your Supabase Row Level Security (RLS) policies are properly configured to protect your data.
+</Warning>
+
+### Cron Job Security
+
+#### `CRON_SECRET`
+
+- **Purpose**: Authenticates requests to the `/api/cron` endpoint
+- **Format**: Any secure random string (recommended: 32+ characters)
+- **Used in**: `src/app/api/cron/route.ts:6`
+- **Scope**: Server-only (no `NEXT_PUBLIC_` prefix)
+
+<Note>
+  This secret is used by Vercel's cron job system to authenticate requests. Generate a strong random string for this value.
+</Note>
+
+## Setting Up Environment Variables
+
+### Local Development
+
+<Steps>
+  <Step title="Create .env.local file">
+    In your project root, create a `.env.local` file:
+
+    ```bash
+    touch .env.local
+    ```
+
+    <Note>
+      The `.env.local` file is gitignored by default in Next.js projects. Never commit this file to version control.
+    </Note>
+  </Step>
+
+  <Step title="Add environment variables">
+    Add the following variables to `.env.local`:
+
+    ```bash .env.local
+    # Supabase Configuration
+    NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+
+    # Cron Job Security
+    CRON_SECRET=your-secure-random-string-here
+    ```
+  </Step>
+
+  <Step title="Get Supabase credentials">
+    Retrieve your Supabase credentials:
+
+    1. Log in to [Supabase Dashboard](https://supabase.com/dashboard)
+    2. Select your project
+    3. Navigate to Settings > API
+    4. Copy the "Project URL" (for `NEXT_PUBLIC_SUPABASE_URL`)
+    5. Copy the "anon public" key (for `NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+  </Step>
+
+  <Step title="Generate CRON_SECRET">
+    Generate a secure random string for `CRON_SECRET`:
+
+    ```bash
+    # Using OpenSSL
+    openssl rand -base64 32
+
+    # Using Node.js
+    node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+    ```
+  </Step>
+
+  <Step title="Restart development server">
+    If your development server is running, restart it to load the new environment variables:
+
+    ```bash
+    npm run dev
+    ```
+  </Step>
+</Steps>
+
+### Production (Vercel)
+
+<Steps>
+  <Step title="Navigate to project settings">
+    1. Open your project in Vercel dashboard
+    2. Go to Settings > Environment Variables
+  </Step>
+
+  <Step title="Add each variable">
+    For each environment variable:
+
+    1. Enter the variable name (e.g., `NEXT_PUBLIC_SUPABASE_URL`)
+    2. Enter the value
+    3. Select the environments: Production, Preview, Development
+    4. Click "Save"
+  </Step>
+
+  <Step title="Redeploy if necessary">
+    If variables were added after initial deployment:
+
+    1. Go to Deployments tab
+    2. Click on the latest deployment
+    3. Click "Redeploy" button
+
+    <Note>
+      New deployments automatically include updated environment variables.
+    </Note>
+  </Step>
+</Steps>
+
+## How Environment Variables Are Used
+
+### Supabase Server Client
+
+The Supabase client is created in `src/utils/supabase/server.ts`:
+
+```typescript src/utils/supabase/server.ts
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+
+export async function createClient() {
+  const cookieStore = await cookies();
+
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll();
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            );
+          } catch {
+            // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
+          }
+        },
+      },
+    }
+  );
+}
+```
+
+This creates a server-side Supabase client that handles cookie-based authentication for Server Components.
+
+### Cron Endpoint Authentication
+
+The cron endpoint uses `CRON_SECRET` to verify requests:
+
+```typescript src/app/api/cron/route.ts
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get("authorization");
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return new Response("Unauthorized", {
+      status: 401,
+    });
+  }
+
+  const client = await createClient();
+  const { error } = await client.from("messages").select("*").limit(1);
+  if (error) {
+    return new Response("Internal Server Error", {
+      status: 500,
+    });
+  }
+
+  return new Response("OK", {
+    status: 200,
+  });
+}
+```
+
+Vercel automatically sends the `Authorization: Bearer {CRON_SECRET}` header when triggering scheduled cron jobs.
+
+## Verification
+
+### Verify Local Setup
+
+1. Start the development server: `npm run dev`
+2. Check for any missing environment variable errors in the console
+3. Test Supabase connectivity by accessing features that use the database
+
+### Verify Production Setup
+
+1. Check Vercel deployment logs for environment variable errors
+2. Visit your deployed site and test database functionality
+3. Monitor function logs for any runtime errors related to missing variables
+
+## Security Best Practices
+
+<Warning>
+  Never commit environment variables to version control. Always use `.env.local` for local development and Vercel's environment variable settings for production.
+</Warning>
+
+- Use strong, randomly generated values for `CRON_SECRET`
+- Rotate secrets periodically, especially if exposed
+- Enable Supabase Row Level Security (RLS) policies to protect data
+- Review Supabase logs regularly for unauthorized access attempts
+- Use different Supabase projects for development and production
+
+## Troubleshooting
+
+### Error: "Missing environment variable"
+
+- Verify the variable name matches exactly (case-sensitive)
+- Ensure `.env.local` exists in project root (for local development)
+- Restart the development server after adding variables
+- Check Vercel dashboard for production variables
+
+### Supabase Connection Fails
+
+- Verify `NEXT_PUBLIC_SUPABASE_URL` format is correct
+- Check `NEXT_PUBLIC_SUPABASE_ANON_KEY` is the complete key
+- Ensure Supabase project is active and not paused
+- Verify network connectivity to Supabase servers
+
+### Cron Job Returns 401 Unauthorized
+
+- Verify `CRON_SECRET` is set in Vercel environment variables
+- Ensure the secret matches between Vercel settings and your code
+- Check Vercel cron job configuration in dashboard

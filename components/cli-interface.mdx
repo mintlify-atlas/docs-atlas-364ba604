@@ -1,0 +1,539 @@
+---
+title: 'CLI Interface'
+description: 'Interactive terminal component with Unix-style commands and Easter eggs'
+icon: 'terminal'
+---
+
+## Overview
+
+The CLI interface is the main interactive component of Arman's Living Room. It provides a Unix-style terminal experience where users can explore files, navigate directories, and discover hidden features.
+
+## Available Commands
+
+<AccordionGroup>
+  <Accordion title="whoami - Display current user">
+    Returns the current user identity.
+    
+    **Usage:**
+    ```bash
+    $ whoami
+    arman
+    ```
+    
+    **Implementation:** (cli.tsx:76-81)
+    ```tsx
+    case "whoami":
+      setMessages((prev) => [
+        ...prev,
+        { message: "arman", type: "output" },
+      ]);
+      break;
+    ```
+  </Accordion>
+
+  <Accordion title="ls - List files">
+    Lists all files in the current directory.
+    
+    **Usage:**
+    ```bash
+    $ ls
+    thoughts
+    experience.txt
+    socials.txt
+    gui.app
+    ```
+    
+    **Implementation:** (cli.tsx:82-90)
+    ```tsx
+    case "ls":
+      setMessages((prev) => [
+        ...prev,
+        {
+          message: files.map((file) => file.name).join("\n"),
+          type: "output",
+        },
+      ]);
+      break;
+    ```
+  </Accordion>
+
+  <Accordion title="cat - Display file contents">
+    Displays the contents of a specified file.
+    
+    **Usage:**
+    ```bash
+    $ cat experience.txt
+    mintlify (w22):
+     - software engineer intern (may 2025 - august 2025)
+     - Next.js, MongoDB, Express
+    ...
+    ```
+    
+    **Error handling:**
+    ```bash
+    $ cat
+    usage: cat <filename> (e.g. cat file.txt)
+    
+    $ cat nonexistent.txt
+    cat: nonexistent.txt: No such file or directory
+    ```
+    
+    **Implementation:** (cli.tsx:128-154)
+    ```tsx
+    if (input.toLowerCase().startsWith("cat")) {
+      const fileName = input.toLowerCase().split(" ")[1];
+      if (!fileName) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: "usage: cat <filename> (e.g. cat file.txt)",
+            type: "output",
+          },
+        ]);
+        break;
+      }
+      const file = files.find((file) => file.name === fileName);
+      if (file) {
+        setMessages((prev) => [
+          ...prev,
+          { message: file.content, type: "output" },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: `cat: ${fileName}: No such file or directory`,
+            type: "output",
+          },
+        ]);
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="cd - Change directory">
+    Navigate to a different directory. Currently only supports navigating to the `thoughts` directory.
+    
+    **Usage:**
+    ```bash
+    $ cd thoughts
+    # Redirects to /thoughts page
+    ```
+    
+    **Error handling:**
+    ```bash
+    $ cd
+    # Does nothing, returns empty output
+    
+    $ cd foo bar
+    cd: too many arguments
+    
+    $ cd nonexistent
+    cd: no such file or directory: nonexistent
+    ```
+    
+    **Implementation:** (cli.tsx:232-265)
+    ```tsx
+    if (input.toLowerCase().startsWith("cd")) {
+      if (input.toLowerCase().trim() === "cd") {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: "",
+            type: "output",
+          },
+        ]);
+        break;
+      }
+      if (input.toLowerCase().split(" ").length > 2) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: `cd: too many arguments`,
+            type: "output",
+          },
+        ]);
+        break;
+      }
+      const directory = input.toLowerCase().split(" ")[1];
+      if (directory == "thoughts") {
+        window.location.href = "/thoughts";
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: `cd: no such file or directory: ${directory}`,
+            type: "output",
+          },
+        ]);
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="touch - Create new file (Easter egg!)">
+    Creates a new file. **Easter egg:** Every file created with `touch` becomes a random cat image!
+    
+    **Usage:**
+    ```bash
+    $ touch myfile.txt
+    # Creates a file with a random cat image from cataas.com
+    
+    $ cat myfile.txt
+    # Displays the cat image (200x200px)
+    ```
+    
+    **Error handling:**
+    ```bash
+    $ touch
+    usage: touch <filename> (e.g. touch file.txt)
+    
+    $ touch experience.txt
+    touch: cannot touch 'experience.txt': File exists
+    ```
+    
+    <Tip>
+    The `touch` command fetches random cat images from [cataas.com](https://cataas.com). If the API is rate-limited, it falls back to displaying a cat emoji (🐈).
+    </Tip>
+    
+    **Implementation:** (cli.tsx:155-208)
+    ```tsx
+    else if (input.toLowerCase().startsWith("touch")) {
+      const fileName = input.toLowerCase().split(" ")[1];
+      if (!fileName) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: "usage: touch <filename> (e.g. touch file.txt)",
+            type: "output",
+          },
+        ]);
+        break;
+      }
+      if (files.find((file) => file.name === fileName)) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: `touch: cannot touch '${fileName}': File exists`,
+            type: "output",
+          },
+        ]);
+      } else {
+        setInput("");
+        try {
+          const image = await fetch(
+            `https://cataas.com/cat?width=200&height=200`
+          ).then((data) => data.blob());
+          const imageUrl = URL.createObjectURL(image);
+          setFiles((prev) => [
+            ...prev,
+            {
+              name: fileName,
+              content: (
+                <img
+                  src={imageUrl}
+                  alt="cat"
+                  className="w-40 h-40 object-cover"
+                />
+              ),
+            },
+          ]);
+        } catch {
+          // in case we get rate limited
+          setFiles((prev) => [
+            ...prev,
+            {
+              name: fileName,
+              content: "🐈",
+            },
+          ]);
+        }
+        return;
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="rm - Remove file">
+    Deletes a specified file from the file system.
+    
+    **Usage:**
+    ```bash
+    $ touch test.txt
+    $ ls
+    thoughts
+    experience.txt
+    socials.txt
+    gui.app
+    test.txt
+    
+    $ rm test.txt
+    $ ls
+    thoughts
+    experience.txt
+    socials.txt
+    gui.app
+    ```
+    
+    **Error handling:**
+    ```bash
+    $ rm
+    usage: rm <filename> (e.g. rm file.txt)
+    
+    $ rm nonexistent.txt
+    rm: nonexistent.txt: No such file or directory
+    ```
+    
+    **Implementation:** (cli.tsx:209-231)
+    ```tsx
+    else if (input.toLowerCase().startsWith("rm")) {
+      const fileName = input.toLowerCase().split(" ")[1];
+      if (!fileName) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: "usage: rm <filename> (e.g. rm file.txt)",
+            type: "output",
+          },
+        ]);
+        break;
+      }
+      if (files.find((file) => file.name === fileName)) {
+        setFiles((prev) => prev.filter((file) => file.name !== fileName));
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            message: `rm: ${fileName}: No such file or directory`,
+            type: "output",
+          },
+        ]);
+      }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="clear - Clear terminal">
+    Clears all messages from the terminal display.
+    
+    **Usage:**
+    ```bash
+    $ clear
+    # Terminal is cleared
+    ```
+    
+    **Implementation:** (cli.tsx:103-105)
+    ```tsx
+    case "clear":
+      setMessages([]);
+      break;
+    ```
+  </Accordion>
+
+  <Accordion title="reset - Reset file system">
+    Resets the file system back to its initial state, removing any files created with `touch` or deleted with `rm`.
+    
+    **Usage:**
+    ```bash
+    $ reset
+    Reset files to initial state
+    ```
+    
+    **Implementation:** (cli.tsx:66-75)
+    ```tsx
+    case "reset":
+      setFiles(INITIAL_FILES);
+      setMessages((prev) => [
+        ...prev,
+        {
+          message: "Reset files to initial state",
+          type: "output",
+        },
+      ]);
+      break;
+    ```
+  </Accordion>
+
+  <Accordion title="help - Show available commands">
+    Displays a list of all available commands.
+    
+    **Usage:**
+    ```bash
+    $ help
+    whoami
+    ls
+    help
+    cd
+    cat
+    clear
+    touch
+    rm
+    reset
+    ./gui.app
+    ```
+    
+    **Implementation:** (cli.tsx:91-102)
+    ```tsx
+    case "help":
+      setMessages((prev) => [
+        ...prev,
+        {
+          message: commands
+            .filter((c) => c !== "./talk.app")
+            .join("\n")
+            .slice(1),
+          type: "output",
+        },
+      ]);
+      break;
+    ```
+  </Accordion>
+
+  <Accordion title="./gui.app - Launch GUI interface">
+    Launches the GUI desktop interface version of the website.
+    
+    **Usage:**
+    ```bash
+    $ ./gui.app
+    opening GUI...
+    # Redirects to /gui after 300ms
+    ```
+    
+    **Implementation:** (cli.tsx:106-114)
+    ```tsx
+    case "./gui.app":
+      setMessages((prev) => [
+        ...prev,
+        { message: "opening GUI...", type: "output" },
+      ]);
+      setTimeout(() => {
+        window.location.href = "/gui";
+      }, 300);
+      break;
+    ```
+  </Accordion>
+</AccordionGroup>
+
+## File System
+
+The CLI maintains an in-memory file system with initial files:
+
+```tsx
+const INITIAL_FILES = [
+  {
+    name: "thoughts",
+    content: "run 'cd thoughts' to see my thoughts on various topics",
+  },
+  {
+    name: "experience.txt",
+    content: "mintlify (w22):\n - software engineer intern...",
+  },
+  {
+    name: "socials.txt",
+    content: "twitter: ksw_arman\ngithub: armans-code...",
+  },
+  {
+    name: "gui.app",
+    content: "run './gui.app' to open the GUI version of this website",
+  },
+];
+```
+
+### File Operations
+
+- **Read-only files:** Initial files (thoughts, experience.txt, socials.txt, gui.app)
+- **User-created files:** Files created with `touch` can be deleted with `rm`
+- **Persistence:** File changes persist during the session but reset on page reload
+- **Reset:** Use `reset` command to restore initial file system state
+
+## Special Features
+
+### Command History (Arrow Up)
+
+Press the up arrow key to recall your last entered command:
+
+```tsx
+const handleKeyDown = (e: KeyboardEvent) => {
+  if (e.key === "ArrowUp") {
+    setInput(
+      messages
+        .filter((message) => message.type === "input")
+        .map((message) => message.message)
+        .pop() || ""
+    );
+  }
+};
+```
+
+### Auto-scroll
+
+The terminal automatically scrolls to the bottom when new messages are added:
+
+```tsx
+useEffect(() => {
+  if (messages.length > 2) {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+}, [messages]);
+```
+
+### Error Handling
+
+Unknown commands display a helpful error message:
+
+```bash
+$ invalid-command
+cli: command not found: invalid-command
+```
+
+## Styling
+
+The CLI uses a terminal-style color scheme:
+
+- **User input:** Indigo text (`text-indigo-300`)
+- **Command output:** Green text (`text-green-300`)
+- **Prompt symbol:** `$` for input, `>` prefix for user commands
+- **Background:** Transparent, inherited from parent
+
+## Component Architecture
+
+```tsx
+interface Message {
+  message: string;
+  type: "input" | "output";
+}
+
+interface File {
+  name: string;
+  content: string;
+}
+
+function CLI() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [files, setFiles] = useState<File[]>(INITIAL_FILES);
+  // ...
+}
+```
+
+<Note>
+The CLI component is a client-side React component (`"use client"`) that manages its own state for messages and files.
+</Note>
+
+## Tips & Tricks
+
+<Tip>
+**Easter Egg Alert!** Try creating multiple files with `touch` to collect different cat images:
+
+```bash
+$ touch cat1.txt
+$ touch cat2.txt
+$ touch cat3.txt
+$ cat cat1.txt
+# Each one shows a different random cat!
+```
+</Tip>
+
+<Info>
+The `cd` command only works with the `thoughts` directory, which navigates to the blog section of the website.
+</Info>

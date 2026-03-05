@@ -1,97 +1,136 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Welcome to Arman's Living Room"
+description: "A creative personal website featuring an interactive CLI interface and modern design built with Next.js"
 ---
 
-## Setting up
+<div style={{ 
+  background: '#0d0d0d',
+  padding: '3rem 2rem',
+  borderRadius: '0px',
+  marginBottom: '2rem',
+  border: 'none'
+}}>
+  <h1 style={{
+    fontFamily: 'Courier New, monospace',
+    fontSize: '36px',
+    fontWeight: '700',
+    color: '#a0b0f3',
+    marginBottom: '1rem'
+  }}>
+    Arman's Living Room
+  </h1>
+  <p style={{
+    fontFamily: 'Courier New, monospace',
+    fontSize: '14.72px',
+    color: '#d9d9d9',
+    marginBottom: '1.5rem'
+  }}>
+    A creative personal website featuring an interactive CLI interface with Unix-style commands,
+    dual interface modes, and a personal blog—all built with Next.js 16 and modern web technologies.
+  </p>
+</div>
 
-Get your documentation site up and running in minutes.
+## Get Started
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+Jump right in and explore the unique features of this personal website template.
 
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Quick Start"
+    icon="rocket"
+    href="/quickstart"
   >
-    Edit your docs locally and preview them in real time.
+    Set up and run the project in minutes
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
+    title="CLI Interface"
     icon="terminal"
-    href="/api-reference/introduction"
+    href="/components/cli-interface"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Explore the interactive terminal component
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Key Features
 
-Everything you need to create world-class documentation.
+Discover what makes this personal website stand out.
 
-<Columns cols={2}>
+<CardGroup cols={2}>
   <Card
-    title="Write with MDX"
+    title="Interactive CLI"
+    icon="terminal"
+    href="/components/cli-interface"
+  >
+    Unix-style command interface with file operations, navigation, and Easter eggs
+  </Card>
+  <Card
+    title="GUI Mode"
+    icon="window"
+    href="/components/gui-interface"
+  >
+    Alternative desktop-style interface with draggable windows
+  </Card>
+  <Card
+    title="Thoughts Blog"
     icon="pen-fancy"
-    href="/essentials/markdown"
+    href="/components/thoughts-blog"
   >
-    Use MDX to style your docs pages.
+    Personal blog section for sharing ideas and writings
   </Card>
   <Card
-    title="Code samples"
+    title="Dark Mode Design"
+    icon="moon"
+    href="/customization/styling"
+  >
+    Beautiful dark theme with custom fonts and colors
+  </Card>
+</CardGroup>
+
+## Customize It
+
+Make the template your own by customizing the styling, commands, and content.
+
+<CardGroup cols={3}>
+  <Card
+    title="Styling"
+    icon="palette"
+    href="/customization/styling"
+  >
+    Customize colors, fonts, and design
+  </Card>
+  <Card
+    title="CLI Commands"
     icon="code"
-    href="/essentials/code"
+    href="/customization/commands"
   >
-    Add sample code to demonstrate how to use your product.
+    Add or modify terminal commands
   </Card>
   <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
+    title="Content"
+    icon="file-lines"
+    href="/customization/content"
   >
-    Display images and other media.
+    Update your personal information
+  </Card>
+</CardGroup>
+
+## Deploy
+
+Ready to share your site with the world?
+
+<CardGroup cols={2}>
+  <Card
+    title="Deploy to Vercel"
+    icon="cloud"
+    href="/deployment/vercel"
+  >
+    One-click deployment with Vercel
   </Card>
   <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
+    title="Environment Setup"
+    icon="gear"
+    href="/deployment/environment"
   >
-    Write once and reuse across your docs.
+    Configure environment variables and integrations
   </Card>
-</Columns>
-
-## Need inspiration?
-
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+</CardGroup>
