@@ -1,0 +1,57 @@
+{
+  "projectType": "frontend",
+  "projectName": "Arman's Living Room",
+  "projectDescription": "A creative personal website featuring an interactive CLI interface and modern design",
+  "theme": "palm",
+  "primaryColor": "#a0b0f3",
+  "lightColor": "#5c6484",
+  "darkColor": "#0c0c0d",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Overview",
+        "pages": [
+          "introduction",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Components",
+        "pages": [
+          "components/cli-interface",
+          "components/gui-interface",
+          "components/thoughts-blog"
+        ]
+      },
+      {
+        "group": "Customization",
+        "pages": [
+          "customization/styling",
+          "customization/commands",
+          "customization/content"
+        ]
+      },
+      {
+        "group": "Deployment",
+        "pages": [
+          "deployment/vercel",
+          "deployment/environment"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Interactive CLI-style interface with Unix commands",
+    "Dual interface (CLI and GUI modes)",
+    "Personal blog/thoughts section",
+    "Next.js 16 with App Router",
+    "Supabase integration",
+    "Dark mode aesthetic with custom fonts"
+  ],
+  "publicApiSurface": [
+    "CLI Component (cli.tsx)",
+    "Page Routes (/gui, /thoughts, /desktop)",
+    "Server Actions (actions.ts)",
+    "Cron API Endpoint (/api/cron)"
+  ]
+}
