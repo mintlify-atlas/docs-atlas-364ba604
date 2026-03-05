@@ -31,6 +31,7 @@ For users who prefer a graphical interface, the site includes a Windows 98-style
 - Desktop icons and taskbar
 - Notepad-style text viewers
 - Retro aesthetic with authentic Win98 styling
+- Accessible at `/gui` and `/desktop` routes
 
 ### Personal Content Sections
 
@@ -39,6 +40,7 @@ For users who prefer a graphical interface, the site includes a Windows 98-style
 - **Social Links**: Twitter, GitHub, LinkedIn connections
 - **Thoughts**: Personal blog with long-form writing
 - **Dynamic Content**: Fun Easter eggs like random cat images
+- **Talk Page** (currently disabled): Anonymous message submission form at `/talk`
 
 ## Tech Stack
 
@@ -82,13 +84,20 @@ src/
 ├── app/
 │   ├── page.tsx              # Main CLI interface homepage
 │   ├── layout.tsx            # Root layout with fonts and metadata
+│   ├── actions.ts            # Server actions (message submission)
 │   ├── gui/
 │   │   ├── page.tsx          # GUI version entry point
 │   │   └── mini-desktop.tsx  # Windows 98 desktop component
+│   ├── desktop/
+│   │   └── page.tsx          # Alias for GUI interface
 │   ├── thoughts/
 │   │   ├── page.tsx          # Blog listing page
 │   │   └── [id]/page.tsx     # Individual blog posts
-│   └── api/                  # API routes
+│   ├── talk/
+│   │   └── page.tsx          # Anonymous message form (currently disabled)
+│   └── api/
+│       └── cron/
+│           └── route.ts      # Cron endpoint for Supabase connectivity
 ├── components/
 │   └── cli.tsx               # Main CLI component with command logic
 └── utils/

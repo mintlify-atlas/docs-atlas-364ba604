@@ -179,6 +179,32 @@ export async function createClient() {
 
 This creates a server-side Supabase client that handles cookie-based authentication for Server Components.
 
+### Server Actions (Message Submission)
+
+The application includes a server action for submitting anonymous messages in `src/app/actions.ts`:
+
+```typescript src/app/actions.ts
+export const submitMessage = async (name: string, message: string) => {
+  if (name.length > 75 || message.length === 0 || message.length > 420)
+    throw Error();
+  else if (message.trim().length < 2) {
+    return;
+  }
+
+  const data = {
+    name: name.length > 0 ? name.trim() : null,
+    message: message.trim(),
+  };
+  const client = await createClient();
+  const { error } = await client.from("messages").insert([data]);
+  // ...
+};
+```
+
+<Note>
+  The `/talk` page that uses this server action is currently disabled in the live site, but the functionality remains in the codebase.
+</Note>
+
 ### Cron Endpoint Authentication
 
 The cron endpoint uses `CRON_SECRET` to verify requests:
